@@ -34,7 +34,7 @@ export const createAuditCaptureMiddleware = ({ strapi }: { strapi: Core.Strapi }
         strapi.log.warn('Failed to fetch existing data for audit logging', {
           contentType,
           documentId: params.documentId,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -97,8 +97,8 @@ export const createAuditCaptureMiddleware = ({ strapi }: { strapi: Core.Strapi }
         strapi.log.error('Failed to create audit log entry', {
           contentType,
           action,
-          error: error.message,
-          stack: error.stack,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
         });
       }
     });

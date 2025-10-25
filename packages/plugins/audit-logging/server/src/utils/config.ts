@@ -29,7 +29,7 @@ const DEFAULT_CONFIG: AuditLogConfig = {
  */
 export const getAuditLogConfig = (strapi: Core.Strapi): AuditLogConfig => {
   const pluginConfig = strapi.config.get('plugin::audit-logging', {});
-  const auditLogConfig = pluginConfig.auditLog || {};
+  const auditLogConfig = (pluginConfig as any).auditLog || {};
 
   return {
     ...DEFAULT_CONFIG,

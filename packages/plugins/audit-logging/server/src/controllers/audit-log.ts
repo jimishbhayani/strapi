@@ -132,7 +132,7 @@ const controller: Core.Controller = {
 
     } catch (error) {
       strapi.log.error('Failed to retrieve audit logs', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         query: ctx.query,
         user: ctx.state.user?.id,
       });
@@ -160,7 +160,7 @@ const controller: Core.Controller = {
 
     } catch (error) {
       strapi.log.error('Failed to retrieve audit log statistics', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         user: ctx.state.user?.id,
       });
 

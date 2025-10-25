@@ -1,7 +1,6 @@
 const actions = [
   {
     section: 'plugins',
-    category: 'Audit Logging',
     subCategory: 'Audit Logs',
     pluginName: 'audit-logging',
     displayName: 'Read audit logs',

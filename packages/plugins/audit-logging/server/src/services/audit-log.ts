@@ -1,35 +1,8 @@
 import type { Core } from '@strapi/types';
 import { errors } from '@strapi/utils';
+import type { AuditLogEntry, AuditLogQuery } from '../types';
 
 const { ValidationError } = errors;
-
-interface AuditLogEntry {
-  contentType: string;
-  recordId: string;
-  action: 'create' | 'update' | 'delete';
-  userId?: number;
-  payload?: any;
-  changedFields?: any;
-  timestamp: Date;
-  userAgent?: string;
-  ipAddress?: string;
-}
-
-interface AuditLogFilters {
-  contentType?: string;
-  userId?: number;
-  action?: string | string[];
-  startDate?: string;
-  endDate?: string;
-}
-
-interface PaginationParams {
-  page?: number;
-  pageSize?: number;
-  sort?: string;
-}
-
-interface AuditLogQuery extends AuditLogFilters, PaginationParams {}
 
 const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
@@ -78,7 +51,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
       return auditLogEntry;
     } catch (error) {
       strapi.log.error('Failed to create audit log entry', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         contentType: entry.contentType,
         recordId: entry.recordId,
         action: entry.action,
@@ -144,7 +117,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
       };
 
       // Execute query with pagination
-      const { results, pagination } = await strapi.db
+      const [results, count] = await strapi.db
         .query('plugin::audit-logging.audit-log')
         .findWithCount({
           where,
@@ -152,6 +125,13 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
           offset: (validatedPage - 1) * validatedPageSize,
           limit: validatedPageSize,
         });
+
+      const pagination = {
+        page: validatedPage,
+        pageSize: validatedPageSize,
+        pageCount: Math.ceil(count / validatedPageSize),
+        total: count,
+      };
 
       return {
         data: results,
@@ -166,7 +146,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
       };
     } catch (error) {
       strapi.log.error('Failed to find audit logs', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         query,
       });
       throw error;
@@ -179,7 +159,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
   isLoggingEnabled(contentType: string): boolean {
     try {
       const config = strapi.config.get('plugin::audit-logging', {});
-      const auditLogConfig = config.auditLog || {};
+      const auditLogConfig = (config as any).auditLog || {};
 
       // Check if audit logging is globally disabled
       if (auditLogConfig.enabled === false) {
@@ -195,7 +175,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
       return true;
     } catch (error) {
       strapi.log.error('Failed to check audit logging configuration', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         contentType,
       });
       // Default to enabled if configuration check fails
@@ -232,7 +212,7 @@ const createAuditLogService = ({ strapi }: { strapi: Core.Strapi }) => ({
       };
     } catch (error) {
       strapi.log.error('Failed to get audit log statistics', {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
