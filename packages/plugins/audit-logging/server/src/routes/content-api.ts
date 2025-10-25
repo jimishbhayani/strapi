@@ -1,13 +1,14 @@
-export default {
-  type: 'content-api',
-  routes: [
+import type { Core } from '@strapi/types';
+import { createContentApiRoutesFactory } from '@strapi/utils';
+
+const createContentApiRoutes = createContentApiRoutesFactory((): Core.RouterInput['routes'] => {
+  return [
     {
       method: 'GET',
       path: '/audit-logs',
       handler: 'audit-log.find',
       config: {
-        policies: [],
-        middlewares: [],
+        prefix: '',
       },
     },
     {
@@ -15,9 +16,10 @@ export default {
       path: '/audit-logs/stats',
       handler: 'audit-log.getStats',
       config: {
-        policies: [],
-        middlewares: [],
+        prefix: '',
       },
     },
-  ],
-};
+  ];
+});
+
+export default createContentApiRoutes;
