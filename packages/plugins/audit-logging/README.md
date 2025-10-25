@@ -307,8 +307,8 @@ yarn lint
 
 ## Documentation
 
-- [Design Notes](./DESIGN_NOTE.md) - Detailed architectural documentation
-- [Testing Report](./AUDIT_LOGGING_TESTING_REPORT.md) - Comprehensive testing validation
+- [Design Notes](./docs/DESIGN_NOTE.md) - Detailed architectural documentation
+- [Testing Report](./docs/AUDIT_LOGGING_TESTING_REPORT.md) - Comprehensive testing validation
 
 ## License
 
