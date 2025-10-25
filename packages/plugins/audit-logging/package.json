@@ -54,7 +54,6 @@
     "@strapi/types": "5.29.0",
     "koa": "2.16.1"
   },
-  "peerDependencies": {},
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
     "npm": ">=6.0.0"
