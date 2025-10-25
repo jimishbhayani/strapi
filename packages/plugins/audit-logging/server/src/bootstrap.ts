@@ -38,8 +38,8 @@ export default async ({ strapi }: { strapi: Core.Strapi }) => {
 
   } catch (error) {
     strapi.log.error('Failed to bootstrap audit logging plugin:', {
-      error: error.message,
-      stack: error.stack,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
     throw error;
   }

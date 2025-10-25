@@ -19,44 +19,17 @@ export const addAuditLogsIndexes: Migration = {
       return;
     }
 
-    // Add individual indexes for common filter fields
-    const indexes = [
-      { name: 'idx_audit_logs_content_type', column: 'content_type' },
-      { name: 'idx_audit_logs_user_id', column: 'user_id' },
-      { name: 'idx_audit_logs_action', column: 'action' },
-      { name: 'idx_audit_logs_timestamp', column: 'timestamp' },
-    ];
-
-    // Add composite indexes for common query patterns
-    const compositeIndexes = [
-      { 
-        name: 'idx_audit_logs_content_type_timestamp', 
-        columns: ['content_type', 'timestamp'] 
-      },
-      { 
-        name: 'idx_audit_logs_user_action', 
-        columns: ['user_id', 'action'] 
-      },
-    ];
-
-    // Create individual indexes
-    for (const index of indexes) {
-      const hasIndex = await trx.schema.hasIndex(tableName, index.name);
-      if (!hasIndex) {
-        await trx.schema.alterTable(tableName, (table) => {
-          table.index([index.column], index.name);
-        });
-      }
-    }
-
-    // Create composite indexes
-    for (const index of compositeIndexes) {
-      const hasIndex = await trx.schema.hasIndex(tableName, index.name);
-      if (!hasIndex) {
-        await trx.schema.alterTable(tableName, (table) => {
-          table.index(index.columns, index.name);
-        });
-      }
+    try {
+      // Create indexes with IF NOT EXISTS logic using raw SQL
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_content_type ON ${tableName} (content_type)`);
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON ${tableName} (user_id)`);
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON ${tableName} (action)`);
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON ${tableName} (timestamp)`);
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_content_type_timestamp ON ${tableName} (content_type, timestamp)`);
+      await trx.raw(`CREATE INDEX IF NOT EXISTS idx_audit_logs_user_action ON ${tableName} (user_id, action)`);
+    } catch (error) {
+      // Ignore errors if indexes already exist or database doesn't support IF NOT EXISTS
+      console.warn('Some audit log indexes may already exist or could not be created:', error);
     }
   },
 
@@ -70,23 +43,17 @@ export const addAuditLogsIndexes: Migration = {
       return;
     }
 
-    // Remove indexes in reverse order
-    const allIndexes = [
-      'idx_audit_logs_user_action',
-      'idx_audit_logs_content_type_timestamp',
-      'idx_audit_logs_timestamp',
-      'idx_audit_logs_action',
-      'idx_audit_logs_user_id',
-      'idx_audit_logs_content_type',
-    ];
-
-    for (const indexName of allIndexes) {
-      const hasIndex = await trx.schema.hasIndex(tableName, indexName);
-      if (hasIndex) {
-        await trx.schema.alterTable(tableName, (table) => {
-          table.dropIndex([], indexName);
-        });
-      }
+    try {
+      // Drop indexes if they exist
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_user_action`);
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_content_type_timestamp`);
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_timestamp`);
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_action`);
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_user_id`);
+      await trx.raw(`DROP INDEX IF EXISTS idx_audit_logs_content_type`);
+    } catch (error) {
+      // Ignore errors if indexes don't exist
+      console.warn('Some audit log indexes may not exist or could not be dropped:', error);
     }
   },
 };

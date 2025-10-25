@@ -35,4 +35,24 @@ module.exports = () => ({
     enabled: false,
     resolve: `../plugins/todo-example`, // From the /examples/plugins folder
   },
+  'audit-logging': {
+    enabled: true, // Now enabled - build issues resolved!
+    resolve: `../../packages/plugins/audit-logging`, // Path to our audit logging plugin
+    config: {
+      auditLog: {
+        enabled: true,
+        excludeContentTypes: [
+          'strapi::core-store',
+          'admin::user',
+          'admin::permission',
+          'admin::role',
+          'plugin::upload.file',
+          'plugin::upload.folder'
+        ],
+        captureUserAgent: true,
+        captureIpAddress: true,
+        retentionDays: 365
+      }
+    }
+  },
 });
