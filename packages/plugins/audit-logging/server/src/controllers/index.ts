@@ -1,2 +1,5 @@
-// Controllers will be implemented in task 5
-export default {};
+import auditLog from './audit-log';
+
+export default {
+  'audit-log': auditLog,
+};
