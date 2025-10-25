@@ -15,3 +15,4 @@ export const getPluginConfig = (strapi: Core.Strapi) => {
 };
 
 export * from './config';
+export * from './error-handler';
