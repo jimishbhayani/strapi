@@ -1,2 +1,5 @@
-// Routes will be implemented in task 5
-export default {};
+import admin from './admin';
+
+export default {
+  admin,
+};
